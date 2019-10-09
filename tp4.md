@@ -586,6 +586,8 @@ En résumé :
     + ```DiffUtil``` possède une classe appelée ```ItemCallBack``` que vous étendez afin de gérer la différence entre deux listes.
 + ```@BindingAdapter``` permet d'écrire un adaptateur de liaison en tant que fonction d’extension sur le View.
 
+![meme](tenor.gif)
+
 ## 2 Les API
 
 `Cette partie est à mettre en oeuvre pour le projet final`
@@ -649,7 +651,7 @@ Prenons point par point.
 
 D'abord, l'URL de base de votre API doit être déclaré.
 
-Ensuite, une variable moshi est déclarée. Celle-ci est liée à la bibliothèque ```Moshi``` qui est est un analyseur de contenu JSON et qui transforme ce contenu en objet Kotlin. Retrofit permet d'associer son convertisseur avec Moshi pour analyser les objets JSON renvoyés par le WebService.
+Ensuite, une variable moshi est déclarée. Celle-ci est liée à la bibliothèque ```Moshi``` qui est un analyseur de contenu JSON et qui transforme ce contenu en objet Kotlin. Retrofit permet d'associer son convertisseur avec Moshi pour analyser les objets JSON renvoyés par le WebService.
 Il faut alors créer une classe qui va représenter l'objet renvoyé par l'API en Kotlin, ici ```MarsProperty```.
 
 Il y a ensuite le générateur Retrofit. Celui-ci permet de définir notre convertisseur, l'adapteur et l'url utilisés pour récupérer nos données.
@@ -665,7 +667,7 @@ Enfin, un objet est définit pour initialiser le service ```Retrofit```.
 
 Un ```ViewModel``` est nécessaire pour gérer les données d'une API, comme pour une connexion à une base de données.
 
-Cela ressemble beaucoup à un ```ViewModel``` a ce qu'on a vu auparavant. On déclare une nouvelle fois un scope pour la coroutine. L'appel se fera toujours au sein de celui-ci et on utilisera la méthode ```await()``` pour attendre le résultat.
+Cela ressemble beaucoup à ce qu'on a vu auparavant. On déclare une nouvelle fois un scope pour la coroutine. L'appel se fera toujours au sein de celui-ci et on utilisera la méthode ```await()``` pour attendre le résultat.
 
 ```kotlin
 class ApiListViewModel : ViewModel() {
@@ -766,3 +768,5 @@ val adapter = MyListAdapter(UserListener { userId ->
 `Travail à faire :`
 + En sélectionnant l'API de votre choix, vous devez récupérer des données puis les afficher dans une liste (RecyclerView)
 + Lors du clic sur un élément, cela ouvre une vue détaillée de l'élément
+
+![la fin](end.jpg)
