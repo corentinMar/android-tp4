@@ -23,11 +23,10 @@ implementation 'androidx.recyclerview:recyclerview:1.0.0'
 Créez ensuite un nouveau fragment : ```fragment_list.xml```. Il est composé d'un ```ConstraintLayout``` et d'un ```RecyclerView```.
 
 ```xml
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        xmlns:app="http://schemas.android.com/apk/res-auto">
-        
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
     <data>
 
         <variable
@@ -35,17 +34,23 @@ Créez ensuite un nouveau fragment : ```fragment_list.xml```. Il est composé d'
                 type="com.example.tp2.viewmodel.ListViewModel" />
     </data>
 
-    <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            android:layout_height="match_parent">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
 ```
 
 Le ```RecyclerView``` possède un manager : ```LinearLayoutManager```. Celui-ci permet d'afficher les éléments dans une liste verticale en pleine largeur.
