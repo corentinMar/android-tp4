@@ -588,6 +588,49 @@ En résumé :
 
 ![meme](tenor.gif)
 
+## Interlude
+
+Pour le projet final, vous pouvez utiliser ce code à la place de celui des dates, pour éviter d'éventuel bug.
+
+Pour la classe du layout :
+
+```xml
+<com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/ev_birthday"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="@id/tv_guideline"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/tv_title">
+
+    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/ti_birthday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="date"
+                        />
+</com.google.android.material.textfield.TextInputLayout>
+```
+
+```kotlin
+ binding.tiBirthday.setOnClickListener {
+            val c = Calendar.getInstance()
+            val year = c.get(Calendar.YEAR)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
+
+            val dpd = DatePickerDialog(activity!!,
+                DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+
+                binding.tiBirthday.text =  SpannableStringBuilder("$dayOfMonth/$monthOfYear/$year")
+                viewModel.user.value?.birthdayDate = Date(year,monthOfYear,dayOfMonth).time
+
+            }, year, month, day)
+
+            dpd.show()
+}
+```
+
 ## 2 Les API
 
 `Cette partie est à mettre en oeuvre pour le projet final`
