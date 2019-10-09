@@ -27,6 +27,13 @@ Créez ensuite un nouveau fragment : ```fragment_list.xml```. Il est composé d'
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto">
+        
+    <data>
+
+        <variable
+                name="viewModel"
+                type="com.example.tp2.viewmodel.ListViewModel" />
+    </data>
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/list"
