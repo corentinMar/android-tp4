@@ -480,7 +480,7 @@ class MyListAdapter : ListAdapter<User, MyListAdapter.ViewHolder>(UserDiffCallba
 
 <div style="page-break-after: always;"></div>
 
-On va même ajouter une petite image pour découvrir les ```BindingAdapter```. Vous pouvez ajouter ce code au sein du ```ListFragment```.
+On va même ajouter une petite image pour découvrir les ```BindingAdapter```. Vous pouvez ajouter ce code au sein du ```ListFragment``` (mais pas dans la classe, en dehors de la classe).
 
 ```kotlin
 @BindingAdapter("userDate")
