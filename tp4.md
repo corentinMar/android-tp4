@@ -57,6 +57,8 @@ Le ```RecyclerView``` possède un manager : ```LinearLayoutManager```. Celui-ci 
 
 Pensez à créer la classe correspondant au layout ```ListFragment.kt```. Pour l'instant, on ne va pas le remplir donc vous ne pouvez pas compiler.
 
+Pensez aussi à faire le lien entre les deux fragments comme dans les tps précédents.
+
 <div style="page-break-after: always;"></div>
 
 ### 1.2 Les éléments
