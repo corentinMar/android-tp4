@@ -1,4 +1,4 @@
-La version imagée : https://drive.google.com/open?id=1e_j-8dQzh2TLu6U-AEeyOyXjNPOLmXb7
+Version PDF : https://drive.google.com/file/d/1qlFzAQwKcTBHFIVyOp36gqtW3GE2DDce/view?usp=sharing
 
 # TP4 Connexion aux API
 
@@ -17,47 +17,33 @@ Pour afficher les données, nous aurons besoin de créer un ```Adapter``` qui ad
 Tout d'abord la petite librairie.
 
 ```kotlin
-implementation 'androidx.recyclerview:recyclerview:1.0.0'
+implementation 'androidx.recyclerview:recyclerview:1.1.0'
 ```
 
 Créez ensuite un nouveau fragment : ```fragment_list.xml```. Il est composé d'un ```ConstraintLayout``` et d'un ```RecyclerView```.
 
 ```xml
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-
-        <variable
-                name="viewModel"
-                type="com.example.tp2.viewmodel.ListViewModel" />
-    </data>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-
-        <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</layout>
+</androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
 Le ```RecyclerView``` possède un manager : ```LinearLayoutManager```. Celui-ci permet d'afficher les éléments dans une liste verticale en pleine largeur.
 
 Pensez à créer la classe correspondant au layout ```ListFragment.kt```. Pour l'instant, on ne va pas le remplir donc vous ne pouvez pas compiler.
-
-Pensez aussi à faire le lien entre les deux fragments comme dans les tps précédents.
 
 <div style="page-break-after: always;"></div>
 
@@ -165,13 +151,15 @@ En somme, dans la fonction de création on aura un "inflater" qui crée la vue �
 
 Pour indiquer au ```RecyclerView``` qu'un élément de la liste a été modifié et doit être mis à jour, on utilise la méthode ```notifyDataSetChanged()```.
 
+Dans la foncton ```onCreateViewHolder()``` :
+
 ```kotlin
 val layoutInflater = LayoutInflater.from(parent.context)
 val view = layoutInflater.inflate(R.layout.item_view, parent, false)
 return MyViewHolder(view)
 ```
 
-Dans la méthode de liaison, on récupère donc les données et on les affecte aux vues.
+Tandis que dans la méthode de liaison, on récupère donc les données et on les affecte aux vues.
 
 ```kotlin
 val item = data[position]
@@ -270,7 +258,7 @@ class ListFragment :  Fragment() {
         val viewModelFactory = ListViewModelFactory(dataSource, application)
 
         val viewModel =
-            ViewModelProviders.of(
+            ViewModelProviders(
                 this, viewModelFactory).get(ListViewModel::class.java)
 
         binding.viewModel = viewModel
@@ -291,6 +279,63 @@ class ListFragment :  Fragment() {
 ```
 
 On observe qu'ici, on instancie notre adapteur ```MyListAdapter``` et qu'on l'affecte, grâce au binding, à notre élément de vue ```<RecyclerView>```. Enfin, on observe les modifications de la liste pour affecter les valeurs lorsque celles-ci sont récupérées.
+
+Pour avoir ```FragmentListBinding``` pensez à adapter votre fragment avec le code spécifique du data biding :
+
+```kotlin
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+    
+    <data>
+        <variable
+                name="viewModel"
+                type="com.example.tp2.viewmodel.ListViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+```
+
+Pour tester votre code, vous pouvez ajouter un bouton sur votre ```fragment_identity.xml```
+
+```xml
+    <com.google.android.material.button.MaterialButton
+                android:id="@+id/bt_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Liste"
+                app:layout_constraintTop_toBottomOf="@id/bt_validate"
+                app:layout_constraintRight_toRightOf="parent"/>
+```
+
+Puis dans votre classe ```IdentityFragment.xml``` ajouté l'événement de click qui utilise une propriété de navigation créée par vos soin dans le ```navigation.xml```.
+
+```kotlin
+ binding.btList.setOnClickListener {
+            this.findNavController().navigate(
+                IdentityFragmentDirections
+                    .actionIdentityFragmentToListFragment()
+            )
+        }
+```
+
 
 En résumé :
 + Le ```RecyclerView``` est conçu pour être efficace même lors de l'affichage de très grandes listes.
@@ -313,7 +358,7 @@ Pour afficher vos données dans un ```RecyclerView```, vous avez besoin des él�
 
  ```RecyclerView ``` possède une classe appelée  ```DiffUtil ``` qui sert à calculer les différences entre deux listes.  ```DiffUtil ``` prend une ancienne liste et une nouvelle liste et détermine ce qui est différent. Il trouve les éléments qui ont été ajoutés, supprimés ou modifiés. Ensuite, il utilise un algorithme appelé algorithme de différence d'Eugene W. Myers pour déterminer le nombre minimal de modifications à effectuer à partir de l'ancienne liste pour produire la nouvelle liste.
 
-Une fois que vous  ```DiffUtil ``` a compris ce qui a changé, le  ```RecyclerView ``` peut utiliser ces informations pour mettre à jour uniquement les éléments qui ont été modifiés, ajoutés, supprimés ou déplacés, ce qui est beaucoup plus efficace que de refaire toute la liste.
+Une fois que vous  ```DiffUtil ``` a compris quels éléments avaient changé, le  ```RecyclerView ``` peut utiliser ces informations pour mettre à jour uniquement les éléments qui ont été modifiés, ajoutés, supprimés ou déplacés, ce qui est beaucoup plus efficace que de regénérer toute la liste.
 
 Dans notre adapteur, on va définir une nouvelle classe ```UserDiffCallback``` qui va gérer les tests d'item de liste :
 
@@ -445,7 +490,7 @@ Il va enfin falloir faire évoluer la liaison des données pour les items et don
 
 <div style="page-break-after: always;"></div>
 
-Par conséquent, le code du ```ViewHolder``` va lui aussi évoluer, énormément évoluer !
+Par conséquent, le code du ```ViewHolder``` va lui aussi évoluer, énormément évoluer ! On n'a plus besoin d'utiliser notre propre ViewHolder mais on va se baser directement sur le data binding. Donc plus besoin de récupérer les propriétés une à une et de les mapper.
 
 ```kotlin
 class MyListAdapter : ListAdapter<User, MyListAdapter.ViewHolder>(UserDiffCallback()) {
@@ -480,28 +525,34 @@ class MyListAdapter : ListAdapter<User, MyListAdapter.ViewHolder>(UserDiffCallba
 
 <div style="page-break-after: always;"></div>
 
-On va même ajouter une petite image pour découvrir les ```BindingAdapter```. Vous pouvez ajouter ce code au sein du ```ListFragment``` (mais pas dans la classe, en dehors de la classe).
+On va même ajouter une petite image pour découvrir les ```BindingAdapter```. Vous pouvez ajouter ce code au sein du ```ListFragment```.
 
 ```kotlin
-@BindingAdapter("userDate")
-fun TextView.setUserDate(item: User) {
-    val date = Date(item.birthdayDate)
-    val f = SimpleDateFormat("dd/MM/yy")
-    val dateText = f.format(date)
-    text = dateText
-}
+companion object {
+        @JvmStatic
+        @BindingAdapter("userDate")
+        fun TextView.setUserDate(item: User) {
+            val date = Date(item.birthdayDate)
+            val f = SimpleDateFormat("dd/MM/yy")
+            val dateText = f.format(date)
+            text = dateText
+        }
 
 
-@BindingAdapter("userImage")
-fun ImageView.setUserImage(item: User) {
-    setImageResource(when (item.gender) {
-        "Homme" -> R.mipmap.ic_man
-        else -> R.mipmap.ic_woman
-    })
-}
+        @BindingAdapter("userImage")
+        @JvmStatic
+        fun ImageView.setUserImage(item: User) {
+            setImageResource(
+                when (item.gender) {
+                    "Homme" -> R.mipmap.ic_man
+                    else -> R.mipmap.ic_woman
+                }
+            )
+        }
+    }
 ```
 
-Au niveau du dossier ```mipmap```, faites clic droit et 'New' > 'Image Asset' et créez deux images ```ic_man``` et ```ic_woman``` avec les icônes et couleurs que vous souhaitez.
+Au niveau du dossier resource ```mipmap```, faites clic droit et 'New' > 'Image Asset' et créez deux images en type Launcher icons (Legacy only) ```ic_man``` et ```ic_woman``` avec les icônes et couleurs que vous souhaitez.
 
 ![Création d'image](create_image.png)
 
@@ -600,51 +651,6 @@ En résumé :
     + ```DiffUtil``` possède une classe appelée ```ItemCallBack``` que vous étendez afin de gérer la différence entre deux listes.
 + ```@BindingAdapter``` permet d'écrire un adaptateur de liaison en tant que fonction d’extension sur le View.
 
-![meme](tenor.gif)
-
-## Interlude
-
-Pour le projet final, vous pouvez utiliser ce code à la place de celui des dates, pour éviter d'éventuel bug.
-
-Pour la classe du layout :
-
-```xml
-<com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/ev_birthday"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    app:layout_constraintLeft_toLeftOf="@id/tv_guideline"
-                    app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tv_title">
-
-    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/ti_birthday"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:inputType="date"
-                        />
-</com.google.android.material.textfield.TextInputLayout>
-```
-
-```kotlin
- binding.tiBirthday.setOnClickListener {
-            val c = Calendar.getInstance()
-            val year = c.get(Calendar.YEAR)
-            val month = c.get(Calendar.MONTH)
-            val day = c.get(Calendar.DAY_OF_MONTH)
-
-            val dpd = DatePickerDialog(activity!!,
-                DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
-
-                binding.tiBirthday.text =  SpannableStringBuilder("$dayOfMonth/$monthOfYear/$year")
-                viewModel.user.value?.birthdayDate = Date(year,monthOfYear,dayOfMonth).time
-
-            }, year, month, day)
-
-            dpd.show()
-}
-```
-
 ## 2 Les API
 
 `Cette partie est à mettre en oeuvre pour le projet final`
@@ -708,7 +714,7 @@ Prenons point par point.
 
 D'abord, l'URL de base de votre API doit être déclaré.
 
-Ensuite, une variable moshi est déclarée. Celle-ci est liée à la bibliothèque ```Moshi``` qui est un analyseur de contenu JSON et qui transforme ce contenu en objet Kotlin. Retrofit permet d'associer son convertisseur avec Moshi pour analyser les objets JSON renvoyés par le WebService.
+Ensuite, une variable moshi est déclarée. Celle-ci est liée à la bibliothèque ```Moshi``` qui est est un analyseur de contenu JSON et qui transforme ce contenu en objet Kotlin. Retrofit permet d'associer son convertisseur avec Moshi pour analyser les objets JSON renvoyés par le WebService.
 Il faut alors créer une classe qui va représenter l'objet renvoyé par l'API en Kotlin, ici ```MarsProperty```.
 
 Il y a ensuite le générateur Retrofit. Celui-ci permet de définir notre convertisseur, l'adapteur et l'url utilisés pour récupérer nos données.
@@ -724,7 +730,7 @@ Enfin, un objet est définit pour initialiser le service ```Retrofit```.
 
 Un ```ViewModel``` est nécessaire pour gérer les données d'une API, comme pour une connexion à une base de données.
 
-Cela ressemble beaucoup à ce qu'on a vu auparavant. On déclare une nouvelle fois un scope pour la coroutine. L'appel se fera toujours au sein de celui-ci et on utilisera la méthode ```await()``` pour attendre le résultat.
+Cela ressemble beaucoup à un ```ViewModel``` a ce qu'on a vu auparavant. On déclare une nouvelle fois un scope pour la coroutine. L'appel se fera toujours au sein de celui-ci et on utilisera la méthode ```await()``` pour attendre le résultat.
 
 ```kotlin
 class ApiListViewModel : ViewModel() {
@@ -823,7 +829,5 @@ val adapter = MyListAdapter(UserListener { userId ->
 ### 1.4 Partie 2 du projet final
 
 `Travail à faire :`
-+ En sélectionnant l'API de votre choix, vous devez récupérer des données puis les afficher dans une liste (RecyclerView)
-+ Lors du clic sur un élément, cela ouvre une vue détaillée de l'élément
-
-![la fin](end.jpg)
++ Vous devez récupérer des données via API puis les afficher dans une liste (RecyclerView)
++ Lors du clic sur un élément, vous ouvrez une vue détaillée de l'élément
