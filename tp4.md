@@ -826,6 +826,35 @@ val adapter = MyListAdapter(UserListener { userId ->
 })
 ```
 
+### Quelques plus
+#### Gestion du retour 
+Vous voulez gérer le retour à la première vue pour ajouter un nouvel utilisateur.
+
+Il faut tout d'abord créer une liaison entre ``PersonalDataFragment`` et ``IdentityFragement`` dans le fichier ``navigation.xml``.
+
+Puis, ajoutez une méthode ``reset()`` au sein de votre ``IdentityViewModel`` pour gérer l'initialisation d'un nouvel utilisateur.
+
+```kotlin
+fun reset(){
+        _user.value = null
+        initializeUser()
+    }
+```
+
+Enfin, dans votre ``PersonalDataFragment.kt``, ajoutez un callback sur l'action de retour :
+```kotlin
+    val navigation = this.findNavController();
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            viewModel.reset()
+            navigation.navigate(
+                PersonalDataFragmentDirections
+                    .actionPersonalDataFragmentToIdentityFragment()
+            )
+        }
+```
+
+Dès lors, un nouvel utilisateur sera initié :)
+
 ### 1.4 Partie 2 du projet final
 
 `Travail à faire :`
