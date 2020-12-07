@@ -855,6 +855,19 @@ Enfin, dans votre ``PersonalDataFragment.kt``, ajoutez un callback sur l'action 
 
 Dès lors, un nouvel utilisateur sera initié :)
 
+#### Ne pas créer l'utilisateur à l'ouverture de l'application
+
+Pour cela, rien de plus simple, il suffit de commenter la ligne suivante dans la méthode ``getUserFromDatabase()`` de votre ``IdentityViewModel``
+```kotlin
+//                user.id = insert(user)
+```
+
+et de remplacer la ligne ``update(user)`` par cette précédente ligne dans ``onValidateIdentity()``
+```kotlin
+//update(user)
+user.id = insert(user)
+```
+
 ### 1.4 Partie 2 du projet final
 
 `Travail à faire :`
