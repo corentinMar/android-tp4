@@ -1,5 +1,3 @@
-Version PDF : https://drive.google.com/file/d/1qlFzAQwKcTBHFIVyOp36gqtW3GE2DDce/view?usp=sharing
-
 # TP4 Connexion aux API
 
 Une fois de plus, on peut repartir avec le TP précédent.
@@ -653,7 +651,7 @@ En résumé :
 
 ## 2 Les API
 
-`Cette partie est à mettre en oeuvre pour le projet final`
+`Cette partie vous aidera à mettre en oeuvre votre connexion API pour le projet final`
 
 Nous allons terminer ce TP pa apprendre comment récupérer des données depuis une API.
 
@@ -662,10 +660,10 @@ Pour obtenir des données d'une API REST, votre application doit établir une co
 Des dépendances sont nécessaires :
 
 ```gradle
-implementation "com.squareup.retrofit2:retrofit:2.6.2"
-implementation "com.squareup.retrofit2:converter-moshi:2.6.2"
-implementation "com.squareup.moshi:moshi:1.8.0"
-implementation "com.squareup.moshi:moshi-kotlin:1.8.0"
+implementation "com.squareup.retrofit2:retrofit:2.9.0"
+implementation "com.squareup.retrofit2:converter-moshi:2.9.0"
+implementation "com.squareup.moshi:moshi:1.11.0"
+implementation "com.squareup.moshi:moshi-kotlin:1.11.0"
 implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
 ```
 
@@ -735,31 +733,31 @@ Cela ressemble beaucoup à un ```ViewModel``` a ce qu'on a vu auparavant. On dé
 ```kotlin
 class ApiListViewModel : ViewModel() {
 
-    private val _response = MutableLiveData<String>()
+    private val _response = MutableLiveData<List<MarsProperty>>()
 
-    val response: LiveData<String>
+    val response: LiveData<List<MarsProperty>>
         get() = _response
 
     private var viewModelJob = Job()
-    
+
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main )
-    
+
     init {
         getMarsRealEstateProperties()
     }
-    
+
     private fun getMarsRealEstateProperties() {
         coroutineScope.launch {
             var getPropertiesDeferred = MyApi.retrofitService.getProperties()
             try {
                 var listResult = getPropertiesDeferred.await()
-                _response.value = "Success: ${listResult.size} Mars properties retrieved"
+                _response.value = listResult
             } catch (e: Exception) {
-                _response.value = "Failure: ${e.message}"
+                _response.value = ArrayList()
             }
         }
     }
-    
+
     override fun onCleared() {
         super.onCleared()
         viewModelJob.cancel()
@@ -767,9 +765,198 @@ class ApiListViewModel : ViewModel() {
 }
 ```
 
-Dans cet exemple, on affiche un texte.
+Ensuite, il faut un peu rééditer ce qu'on a vu avec la base de données. En effet. Le modèle reste le même : ViewModel, ViewModelFactory, Layout de liste & Adapter, Layout pour l'item...
 
-### 1.3 Sélection d'éléments
+On pourra avoir pour exemple :
+
+- Notre layout d'item de liste `api_item_view.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+                name="marsEstate"
+                type="com.example.tp2.service.MarsProperty" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="6dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            <TextView
+                    android:id="@+id/tv_id_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="@{marsEstate.id}"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textSize="20sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                    android:id="@+id/tv_price_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:text="@{Double.toString(marsEstate.price)}"
+                    android:textSize="16sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/tv_type_item"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_id_item" />
+
+            <TextView
+                    android:id="@+id/tv_type_item"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{marsEstate.type}"
+                    android:textSize="16sp"
+                    app:layout_constraintLeft_toRightOf="@+id/tv_price_item"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/tv_id_item" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>
+```
+
+- Notre layout pour la liste (fragmenté) `fragment_api_list.xml`
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+                name="viewModel"
+                type="com.example.tp2.viewmodel.ApiListViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
+```
+
+Avec bien sûr la classe liée `ApiListFragment.kt`
+
+```kotlin
+class ApiListFragment : Fragment() {
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val binding: FragmentApiListBinding = DataBindingUtil.inflate(
+            inflater, R.layout.fragment_api_list, container, false
+        )
+
+        val application = requireNotNull(this.activity).application
+
+        val viewModelFactory = ApiListViewModelFactory(application)
+
+        var viewModel = ViewModelProvider(this,viewModelFactory).get(ApiListViewModel::class.java)
+
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+
+        val adapter = MyApiListAdapter()
+        binding.list.adapter = adapter
+
+        viewModel.response.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                //adapter.data = it
+                adapter.submitList(it)
+            }
+        })
+        return binding.root
+    }
+}
+```
+
+- Notre Factory `ApiListViewModelFactory.kt`
+```kotlin
+class ApiListViewModelFactory (
+    private val application: Application
+) : ViewModelProvider.Factory {
+    @Suppress("unchecked_cast")
+    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ApiListViewModel::class.java)) {
+            return ApiListViewModel() as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+```
+
+- Notre adapteur de liste `MyApiListAdapter.kt`
+
+```kotlin
+class MyApiListAdapter : ListAdapter<MarsProperty, MyApiListAdapter.ViewHolder>(MarsPropertyDiffCallback()) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        return ViewHolder.from(parent)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = getItem(position)
+        holder.bind(item)
+    }
+
+    class MarsPropertyDiffCallback : DiffUtil.ItemCallback<MarsProperty>() {
+        override fun areItemsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: MarsProperty, newItem: MarsProperty): Boolean {
+            return oldItem == newItem
+        }
+    }
+    class ViewHolder private constructor(val binding: ApiItemViewBinding) : RecyclerView.ViewHolder(binding.root){
+
+        fun bind(item: MarsProperty) {
+            binding.marsEstate = item
+            binding.executePendingBindings()
+        }
+
+        companion object {
+            fun from(parent: ViewGroup): ViewHolder {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = ApiItemViewBinding.inflate(layoutInflater, parent, false)
+                return ViewHolder(binding)
+            }
+        }
+    }
+}
+```
+
+On peut finalement modifier dans la navigation notre lien pour afficher la liste ou tout simplement ajouter un bouton avec une nouvelle navigation vers cette vue.
+
+## 2 Sélection d'éléments
 
 Pour gérer les sélections d'éléments dans les listes vous devez (ici exemple pour le code user de la première partie) :
 
@@ -826,50 +1013,8 @@ val adapter = MyListAdapter(UserListener { userId ->
 })
 ```
 
-### Quelques plus
-#### Gestion du retour 
-Vous voulez gérer le retour à la première vue pour ajouter un nouvel utilisateur.
+## 3 Le projet...
 
-Il faut tout d'abord créer une liaison entre ``PersonalDataFragment`` et ``IdentityFragement`` dans le fichier ``navigation.xml``.
+Désormais, nous en avons terminé avec les TP. Place au projet !
 
-Puis, ajoutez une méthode ``reset()`` au sein de votre ``IdentityViewModel`` pour gérer l'initialisation d'un nouvel utilisateur.
-
-```kotlin
-fun reset(){
-        _user.value = null
-        initializeUser()
-    }
-```
-
-Enfin, dans votre ``PersonalDataFragment.kt``, ajoutez un callback sur l'action de retour :
-```kotlin
-    val navigation = this.findNavController();
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
-            viewModel.reset()
-            navigation.navigate(
-                PersonalDataFragmentDirections
-                    .actionPersonalDataFragmentToIdentityFragment()
-            )
-        }
-```
-
-Dès lors, un nouvel utilisateur sera initié :)
-
-#### Ne pas créer l'utilisateur à l'ouverture de l'application
-
-Pour cela, rien de plus simple, il suffit de commenter la ligne suivante dans la méthode ``getUserFromDatabase()`` de votre ``IdentityViewModel``
-```kotlin
-//                user.id = insert(user)
-```
-
-et de remplacer la ligne ``update(user)`` par cette précédente ligne dans ``onValidateIdentity()``
-```kotlin
-//update(user)
-user.id = insert(user)
-```
-
-### 1.4 Partie 2 du projet final
-
-`Travail à faire :`
-+ Vous devez récupérer des données via API puis les afficher dans une liste (RecyclerView)
-+ Lors du clic sur un élément, vous ouvrez une vue détaillée de l'élément
+https://github.com/corentinMar/android-projet
